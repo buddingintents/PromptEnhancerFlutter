@@ -1,0 +1,206 @@
+application:
+  name: PromptEnhancer
+  package: com.buddingintents.promptenhancer
+  version: 1.0.0
+
+  platform: cross_platform
+  framework: flutter
+  language: dart
+  architecture: clean_architecture
+  state_management: Riverpod
+  navigation: go_router
+
+  storage:
+    local_db: Hive
+    secure_storage: flutter_secure_storage
+
+  ui_framework: Material3 (Flutter)
+
+  goals:
+    - Two LLM calls: categorization + prompt refinement
+    - Transform vague prompts into structured prompts
+    - Multi-provider LLM support (OpenAI, Gemini, Claude, HF, Perplexity, Custom)
+    - Secure API key management
+    - Local history + metrics + trending
+    - Cross-platform (Android + iOS + future web support)
+
+  constraints:
+    - Client-side only MVP (Firebase optional)
+    - API keys stored locally with encryption
+    - Offline mode: history + cached trends
+    - Privacy-compliant (Play Store + App Store)
+
+# ------------------------------------------------------------------------
+functional_requirements:
+
+  home_screen:
+    components:
+      - TextField (multiline, max 4000 chars)
+      - Button ("Refine Prompt")
+      - Topic Chip (auto-detected)
+      - Output Card (refined prompt)
+      - Metadata Row (tokens, response time, provider)
+      - Loader Indicator
+
+    logic_flow:
+      - detect_topic(prompt)
+      - call_llm_refiner(prompt, topic)
+      - save_history()
+      - update_metrics()
+
+  settings_screen:
+    sections:
+      - LLM Endpoints:
+          fields: [name, base_url, model_id, headers, params, is_default]
+
+      - API Keys:
+          storage: flutter_secure_storage
+          actions: [add, edit, delete, mask, biometric_copy]
+
+      - Preferences:
+          - theme: [light, dark, system]
+          - language: [en, hi]
+          - retention_days: [30, 60, 90]
+
+  history_screen:
+    features:
+      - list_entries:
+          fields: [timestamp, prompt_snippet, topic, tokens]
+      - filters: [topic, date, provider]
+      - actions: [copy, rerun, delete, export]
+
+  trending_screen:
+    data_source:
+      - local_analysis
+      - optional_firebase_sync
+    features:
+      - pull_to_refresh
+      - copy_prompt
+      - usage_stats
+
+  usage_metrics_screen:
+    metrics:
+      - tokens_per_provider
+      - avg_response_time
+      - prompts_per_day
+    charts:
+      library: fl_chart
+
+# ------------------------------------------------------------------------
+llm_integration:
+
+  supported_providers:
+    - OpenAI
+    - Gemini
+    - Claude
+    - HuggingFace
+    - Perplexity
+    - Custom
+
+  abstraction_layer:
+    pattern: Adapter + Repository
+    purpose: normalize all responses
+
+  normalization_model:
+    fields:
+      - refined_text
+      - tokens_used
+      - provider_name
+      - elapsed_ms
+
+  topic_detection:
+    method: LLM
+    output:
+      - category
+      - reasoning_depth
+      - confidence
+
+  refine_prompt:
+    method: LLM
+    output: structured_prompt
+
+# ------------------------------------------------------------------------
+security_and_privacy:
+
+  api_key_storage:
+    method: flutter_secure_storage
+    biometric_protection: optional
+
+  transport:
+    protocol: HTTPS (TLS 1.2+)
+
+  logging:
+    redact_sensitive_data: true
+
+  telemetry:
+    opt_in: true
+    anonymized: true
+
+  privacy:
+    local_data_only: true
+    firebase_sync_optional: true
+
+# ------------------------------------------------------------------------
+ui_design:
+
+  navigation:
+    type: drawer + bottom_nav (hybrid recommended)
+    routes:
+      - splash → home
+      - home → history
+      - home → trending
+      - home → metrics
+      - home → settings
+
+  screens:
+    - Splash
+    - Home
+    - History
+    - Trending
+    - Metrics
+    - Settings
+
+  design_system:
+    material_version: Material3
+    responsive: true
+    dark_mode: supported
+
+# ------------------------------------------------------------------------
+non_functional_requirements:
+
+  performance:
+    max_response_time_ms: 4000
+
+  accessibility:
+    screen_reader: supported
+    scalable_text: supported
+
+  localization:
+    languages: [en, hi]
+
+  offline_support:
+    history: read
+    trending_cache: true
+
+# ------------------------------------------------------------------------
+deployment:
+
+  platforms:
+    - Android (Play Store)
+    - iOS (App Store)
+
+  ci_cd:
+    recommended: Codemagic / GitHub Actions
+
+  analytics:
+    optional: Firebase Analytics
+
+# ------------------------------------------------------------------------
+acceptance_criteria:
+
+  - Prompt refinement works across providers
+  - History stored locally and accessible offline
+  - API keys securely stored
+  - UI responsive across devices
+  - LLM responses normalized
+  - App passes store compliance
