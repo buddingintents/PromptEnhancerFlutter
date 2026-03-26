@@ -1,2 +1,1 @@
-// Data layer placeholder for the metrics feature.
-// Add repositories and chart-friendly mappers here.
+﻿export 'repositories/metrics_repository_impl.dart';

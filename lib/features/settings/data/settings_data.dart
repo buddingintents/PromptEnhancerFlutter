@@ -1,2 +1,3 @@
-// Data layer placeholder for the settings feature.
-// Add storage adapters and repository implementations here.
+export 'repositories/settings_repository_impl.dart';
+export 'services/mock_biometric_guard.dart';
+export 'settings_storage_keys.dart';

@@ -1,2 +1,13 @@
-// Domain layer placeholder for the settings feature.
-// Add entities, contracts, and use cases here.
+export 'entities/app_language.dart';
+export 'entities/app_theme_preference.dart';
+export 'entities/provider_api_key.dart';
+export 'entities/settings_preferences.dart';
+export 'entities/settings_snapshot.dart';
+export 'repositories/settings_repository.dart';
+export 'services/biometric_guard.dart';
+export 'usecases/delete_provider_api_key_use_case.dart';
+export 'usecases/get_settings_snapshot_use_case.dart';
+export 'usecases/save_provider_api_key_use_case.dart';
+export 'usecases/update_language_preference_use_case.dart';
+export 'usecases/update_preferred_provider_use_case.dart';
+export 'usecases/update_theme_preference_use_case.dart';

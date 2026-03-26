@@ -1,2 +1,3 @@
-// Domain layer placeholder for the trending feature.
-// Add entities, contracts, and use cases here.
+export 'entities/trending_topic.dart';
+export 'repositories/trending_repository.dart';
+export 'usecases/get_trending_topics_use_case.dart';
