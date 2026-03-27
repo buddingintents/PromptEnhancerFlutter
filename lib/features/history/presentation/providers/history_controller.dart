@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prompt_enhancer/core/firebase/firebase_telemetry_service.dart';
 import 'package:prompt_enhancer/core/utils/app_exception.dart';
 import 'package:prompt_enhancer/features/history/domain/entities/history_entry.dart';
 import 'package:prompt_enhancer/features/history/presentation/providers/history_filters.dart';
@@ -23,13 +24,24 @@ class HistoryController extends Notifier<HistoryState> {
 
     try {
       final items = await ref.read(getHistoryUseCaseProvider)();
+      if (!ref.mounted) {
+        return;
+      }
       state = _buildFilteredState(
         items: items,
         selectedTopic: selectedTopic,
         selectedProvider: selectedProvider,
         selectedDateFilter: selectedDateFilter,
       ).copyWith(loading: false);
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'history_load_failed',
+      );
+      if (!ref.mounted) {
+        return;
+      }
       state = state.copyWith(loading: false, error: _mapError(error));
     }
   }
@@ -67,7 +79,12 @@ class HistoryController extends Notifier<HistoryState> {
       _refreshDerivedFeatures();
       await loadHistory();
       return state.error ?? 'History item deleted.';
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'history_delete_failed',
+      );
       final message = _mapDeleteError(error);
       state = state.copyWith(error: message);
       return message;

@@ -40,7 +40,7 @@ void main() {
       final state = container.read(promptControllerProvider);
       expect(
         state.error,
-        'No API key is configured for OpenAI. Add one in Settings.',
+        'Add an API key for OpenAI in Settings before refining prompts.',
       );
       expect(promptRepository.detectTopicCallCount, 0);
       expect(promptRepository.refinePromptCallCount, 0);
@@ -76,6 +76,22 @@ void main() {
         expect(state.refinedOutput, isNull);
       },
     );
+
+    test('passes the structured output flag into prompt refinement', () async {
+      final promptRepository = FakePromptRepository();
+      final container = _buildContainer(promptRepository: promptRepository);
+      addTearDown(container.dispose);
+
+      final controller = container.read(promptControllerProvider.notifier);
+      controller.updateInput('Turn this into a response schema prompt.');
+      controller.toggleStructuredOutputOnly(true);
+      await controller.refinePrompt();
+
+      final state = container.read(promptControllerProvider);
+      expect(state.structuredOutputOnly, isTrue);
+      expect(promptRepository.lastRefineCall?.structuredOutputOnly, isTrue);
+    });
+
     test('completes the detect, refine, and save flow', () async {
       final topicResult = TopicResult(
         category: 'Marketing',
@@ -116,6 +132,7 @@ void main() {
       expect(promptRepository.lastDetectInput, promptEntity.input);
       expect(promptRepository.lastRefineCall?.input, promptEntity.input);
       expect(state.loading, isFalse);
+      expect(state.loadingMessage, isNull);
       expect(state.error, isNull);
       expect(state.topic, promptEntity.topic);
       expect(state.refinedOutput, promptEntity.refinedOutput);
@@ -145,6 +162,7 @@ void main() {
 
       final state = container.read(promptControllerProvider);
       expect(state.loading, isFalse);
+      expect(state.loadingMessage, isNull);
       expect(state.error, 'Provider unavailable.');
       expect(state.refinedOutput, isNull);
     });
@@ -187,7 +205,8 @@ class FakePromptRepository implements PromptRepository {
   int detectTopicCallCount = 0;
   int refinePromptCallCount = 0;
   String? lastDetectInput;
-  ({String input, TopicResult topicResult})? lastRefineCall;
+  ({String input, TopicResult topicResult, bool structuredOutputOnly})?
+  lastRefineCall;
 
   @override
   Future<TopicResult> detectTopic(String input) async {
@@ -212,9 +231,14 @@ class FakePromptRepository implements PromptRepository {
   Future<PromptEntity> refinePrompt({
     required String input,
     required TopicResult topicResult,
+    bool structuredOutputOnly = false,
   }) async {
     refinePromptCallCount += 1;
-    lastRefineCall = (input: input, topicResult: topicResult);
+    lastRefineCall = (
+      input: input,
+      topicResult: topicResult,
+      structuredOutputOnly: structuredOutputOnly,
+    );
 
     if (refinePromptError != null) {
       throw refinePromptError!;

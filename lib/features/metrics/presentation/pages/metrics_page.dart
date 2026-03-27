@@ -3,12 +3,14 @@ import 'dart:math' as math;
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prompt_enhancer/core/constants/admob_constants.dart';
 import 'package:prompt_enhancer/core/constants/app_routes.dart';
 import 'package:prompt_enhancer/features/metrics/domain/entities/daily_prompt_metric.dart';
 import 'package:prompt_enhancer/features/metrics/domain/entities/provider_latency_metric.dart';
 import 'package:prompt_enhancer/features/metrics/domain/entities/provider_token_metric.dart';
 import 'package:prompt_enhancer/features/metrics/domain/entities/usage_metrics_summary.dart';
 import 'package:prompt_enhancer/features/metrics/presentation/providers/metrics_providers.dart';
+import 'package:prompt_enhancer/shared/widgets/app_banner_ad_slot.dart';
 import 'package:prompt_enhancer/shared/widgets/app_card.dart';
 import 'package:prompt_enhancer/shared/widgets/app_shell_scaffold.dart';
 import 'package:prompt_enhancer/shared/widgets/app_state_view.dart';
@@ -109,6 +111,10 @@ class MetricsPage extends ConsumerWidget {
                   const SizedBox(height: 24),
                   _PromptsPerDayChart(summary: state.summary),
                 ],
+                const SizedBox(height: 24),
+                AppBannerAdSlot(
+                  adUnitId: AdMobConstants.bannerUnitIdFor(AppRoutes.metrics),
+                ),
               ],
             );
           },
@@ -125,34 +131,66 @@ class _SummarySection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 16,
-      runSpacing: 16,
-      children: [
-        _SummaryCard(
-          label: 'Total Prompts',
-          value: '${summary.totalPrompts}',
-          icon: Icons.notes_outlined,
-        ),
-        _SummaryCard(
-          label: 'Total Tokens',
-          value: '${summary.totalTokens}',
-          icon: Icons.tune_outlined,
-        ),
-        _SummaryCard(
-          label: 'Avg Response Time',
-          value: summary.averageResponseTimeMs > 0
-              ? '${summary.averageResponseTimeMs.toStringAsFixed(0)} ms'
-              : 'N/A',
-          icon: Icons.timer_outlined,
-        ),
-      ],
+    return AppCard(
+      title: 'Overview',
+      subtitle:
+          'Total prompts, token volume, and average response time in one place.',
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final useRow = constraints.maxWidth >= 760;
+          final metrics = [
+            _SummaryMetric(
+              label: 'Total Prompts',
+              value: '${summary.totalPrompts}',
+              icon: Icons.notes_outlined,
+            ),
+            _SummaryMetric(
+              label: 'Total Tokens',
+              value: '${summary.totalTokens}',
+              icon: Icons.tune_outlined,
+            ),
+            _SummaryMetric(
+              label: 'Avg Response Time',
+              value: summary.averageResponseTimeMs > 0
+                  ? '${summary.averageResponseTimeMs.toStringAsFixed(0)} ms'
+                  : 'N/A',
+              icon: Icons.timer_outlined,
+            ),
+          ];
+
+          if (!useRow) {
+            return Column(
+              children: [
+                for (var index = 0; index < metrics.length; index++) ...[
+                  metrics[index],
+                  if (index != metrics.length - 1) const SizedBox(height: 14),
+                ],
+              ],
+            );
+          }
+
+          return IntrinsicHeight(
+            child: Row(
+              children: [
+                for (var index = 0; index < metrics.length; index++) ...[
+                  Expanded(child: metrics[index]),
+                  if (index != metrics.length - 1)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      child: VerticalDivider(width: 1),
+                    ),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
+class _SummaryMetric extends StatelessWidget {
+  const _SummaryMetric({
     required this.label,
     required this.value,
     required this.icon,
@@ -166,20 +204,31 @@ class _SummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return SizedBox(
-      width: 240,
-      child: AppCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: theme.colorScheme.primary),
-            const SizedBox(height: 18),
-            Text(label, style: theme.textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(value, style: theme.textTheme.headlineSmall),
-          ],
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 48,
+          height: 48,
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primaryContainer,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          alignment: Alignment.center,
+          child: Icon(icon, color: theme.colorScheme.onPrimaryContainer),
         ),
-      ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: theme.textTheme.labelLarge),
+              const SizedBox(height: 8),
+              Text(value, style: theme.textTheme.headlineSmall),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

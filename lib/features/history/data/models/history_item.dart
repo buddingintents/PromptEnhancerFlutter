@@ -10,6 +10,11 @@ class HistoryItem {
     required this.timestamp,
     required this.provider,
     required this.latencyMs,
+    required this.reasoningDepth,
+    required this.topicConfidence,
+    this.countryCode,
+    this.deviceId,
+    this.deviceModel,
   });
 
   final String prompt;
@@ -19,6 +24,11 @@ class HistoryItem {
   final DateTime timestamp;
   final String provider;
   final int latencyMs;
+  final String reasoningDepth;
+  final double topicConfidence;
+  final String? countryCode;
+  final String? deviceId;
+  final String? deviceModel;
 
   String get storageKey => timestamp.microsecondsSinceEpoch.toString();
 
@@ -31,6 +41,11 @@ class HistoryItem {
       timestamp: timestamp,
       provider: provider,
       latencyMs: latencyMs,
+      reasoningDepth: reasoningDepth,
+      topicConfidence: topicConfidence,
+      countryCode: countryCode,
+      deviceId: deviceId,
+      deviceModel: deviceModel,
     );
   }
 
@@ -43,6 +58,11 @@ class HistoryItem {
       timestamp: entry.timestamp,
       provider: entry.provider,
       latencyMs: entry.latencyMs,
+      reasoningDepth: entry.reasoningDepth,
+      topicConfidence: entry.topicConfidence,
+      countryCode: entry.countryCode,
+      deviceId: entry.deviceId,
+      deviceModel: entry.deviceModel,
     );
   }
 }
@@ -68,13 +88,18 @@ class HistoryItemAdapter extends TypeAdapter<HistoryItem> {
           fields[4] as DateTime? ?? DateTime.fromMillisecondsSinceEpoch(0),
       provider: fields[5] as String? ?? 'Unknown',
       latencyMs: fields[6] as int? ?? 0,
+      reasoningDepth: fields[7] as String? ?? '',
+      topicConfidence: (fields[8] as num?)?.toDouble() ?? 0,
+      countryCode: fields[9] as String?,
+      deviceId: fields[10] as String?,
+      deviceModel: fields[11] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, HistoryItem obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(12)
       ..writeByte(0)
       ..write(obj.prompt)
       ..writeByte(1)
@@ -88,7 +113,17 @@ class HistoryItemAdapter extends TypeAdapter<HistoryItem> {
       ..writeByte(5)
       ..write(obj.provider)
       ..writeByte(6)
-      ..write(obj.latencyMs);
+      ..write(obj.latencyMs)
+      ..writeByte(7)
+      ..write(obj.reasoningDepth)
+      ..writeByte(8)
+      ..write(obj.topicConfidence)
+      ..writeByte(9)
+      ..write(obj.countryCode)
+      ..writeByte(10)
+      ..write(obj.deviceId)
+      ..writeByte(11)
+      ..write(obj.deviceModel);
   }
 }
 

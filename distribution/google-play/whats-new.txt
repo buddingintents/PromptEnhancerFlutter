@@ -1,0 +1,3 @@
+First public release of Prompt Enhancer.
+
+This version includes secure API key setup, multi-provider prompt refinement, structured JSON mode, saved prompt history, synced trending topics, usage metrics, Firebase Analytics, Crashlytics, and screen-level ad support. Users can choose providers and models, rerun saved prompts, and track prompt activity in one workspace.

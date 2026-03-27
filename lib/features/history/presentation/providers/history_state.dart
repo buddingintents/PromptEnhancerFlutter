@@ -20,6 +20,8 @@ class HistoryState {
   final bool loading;
   final String? error;
 
+  int get visibleCount => filteredItems.length;
+
   List<String> get topics {
     final values =
         allItems
@@ -31,6 +33,8 @@ class HistoryState {
     return values;
   }
 
+  int get topicCount => topics.length;
+
   List<String> get providers {
     final values =
         allItems
@@ -41,6 +45,8 @@ class HistoryState {
           ..sort();
     return values;
   }
+
+  int get providerCount => providers.length;
 
   HistoryState copyWith({
     List<HistoryEntry>? allItems,

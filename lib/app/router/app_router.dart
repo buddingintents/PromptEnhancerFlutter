@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:prompt_enhancer/core/constants/app_constants.dart';
 import 'package:prompt_enhancer/core/constants/app_routes.dart';
+import 'package:prompt_enhancer/core/firebase/firebase_providers.dart';
 import 'package:prompt_enhancer/features/history/presentation/pages/history_page.dart';
 import 'package:prompt_enhancer/features/metrics/presentation/pages/metrics_page.dart';
 import 'package:prompt_enhancer/features/prompt/presentation/pages/home_page.dart';
@@ -12,7 +13,12 @@ import 'package:prompt_enhancer/shared/widgets/app_button.dart';
 import 'package:prompt_enhancer/shared/widgets/app_card.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final analyticsObserver = ref.watch(firebaseAnalyticsObserverProvider);
+
   return GoRouter(
+    observers: analyticsObserver == null
+        ? const <NavigatorObserver>[]
+        : <NavigatorObserver>[analyticsObserver],
     initialLocation: AppRoutes.splash,
     redirect: (context, state) {
       if (state.matchedLocation == '/') {

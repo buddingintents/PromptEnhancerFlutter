@@ -1,5 +1,6 @@
-package com.buddingintents.prompt_enhancer
+package com.buddingintents.promptenhancer
 
 import io.flutter.embedding.android.FlutterActivity
 
 class MainActivity : FlutterActivity()
+

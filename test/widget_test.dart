@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:prompt_enhancer/app/app.dart';
+import 'package:prompt_enhancer/features/prompt/presentation/pages/home_page.dart';
 
 void main() {
   testWidgets('renders the splash route on startup', (
@@ -20,7 +21,7 @@ void main() {
     await tester.tap(find.text('Enter App'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Prompt Workspace'), findsOneWidget);
-    expect(find.text('Refine Prompt'), findsOneWidget);
+    expect(find.byType(HomePage), findsOneWidget);
+    expect(find.text('Home'), findsOneWidget);
   });
 }

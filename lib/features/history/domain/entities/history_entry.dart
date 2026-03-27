@@ -7,6 +7,11 @@ class HistoryEntry {
     required this.timestamp,
     required this.provider,
     this.latencyMs = 0,
+    this.reasoningDepth = '',
+    this.topicConfidence = 0,
+    this.countryCode,
+    this.deviceId,
+    this.deviceModel,
   });
 
   final String prompt;
@@ -16,6 +21,11 @@ class HistoryEntry {
   final DateTime timestamp;
   final String provider;
   final int latencyMs;
+  final String reasoningDepth;
+  final double topicConfidence;
+  final String? countryCode;
+  final String? deviceId;
+  final String? deviceModel;
 
   String get storageKey => timestamp.microsecondsSinceEpoch.toString();
 }

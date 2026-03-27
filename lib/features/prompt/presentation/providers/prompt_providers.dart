@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:prompt_enhancer/core/constants/app_constants.dart';
 import 'package:prompt_enhancer/core/constants/llm_provider_models.dart';
 import 'package:prompt_enhancer/core/di/core_providers.dart';
+import 'package:prompt_enhancer/core/firebase/firebase_telemetry_service.dart';
 import 'package:prompt_enhancer/core/utils/app_exception.dart';
 import 'package:prompt_enhancer/features/history/domain/entities/history_entry.dart';
 import 'package:prompt_enhancer/features/history/presentation/providers/history_providers.dart';
@@ -165,8 +166,15 @@ class PromptController extends Notifier<PromptState> {
     state = state.copyWith(input: value, error: null);
   }
 
+  void toggleStructuredOutputOnly(bool value) {
+    state = state.copyWith(structuredOutputOnly: value, error: null);
+  }
+
   void loadDraft(String value) {
-    state = PromptState(input: value);
+    state = PromptState(
+      input: value,
+      structuredOutputOnly: state.structuredOutputOnly,
+    );
   }
 
   Future<void> refinePrompt() async {
@@ -190,7 +198,7 @@ class PromptController extends Notifier<PromptState> {
     if (providerConfig.apiKey.trim().isEmpty) {
       state = state.copyWith(
         error:
-            'No API key is configured for ${providerConfig.providerName}. Add one in Settings.',
+            'Add an API key for ${providerConfig.providerName} in Settings before refining prompts.',
       );
       return;
     }
@@ -204,6 +212,7 @@ class PromptController extends Notifier<PromptState> {
 
     state = state.copyWith(
       loading: true,
+      loadingMessage: 'Detecting topic and complexity...',
       error: null,
       topic: null,
       refinedOutput: null,
@@ -216,20 +225,30 @@ class PromptController extends Notifier<PromptState> {
 
     try {
       final topicResult = await ref.read(detectTopicUseCaseProvider)(input);
+      if (!ref.mounted) {
+        return;
+      }
       state = state.copyWith(
         topic: topicResult.category,
         reasoningDepth: topicResult.reasoningDepth,
         topicConfidence: topicResult.confidence,
+        loadingMessage:
+            'Refining the prompt with ${providerConfig.providerName}...',
       );
 
       final prompt = await ref.read(refinePromptUseCaseProvider)(
         input: input,
         topicResult: topicResult,
+        structuredOutputOnly: state.structuredOutputOnly,
       );
+      if (!ref.mounted) {
+        return;
+      }
 
       state = state.copyWith(
         input: rawInput,
         loading: false,
+        loadingMessage: null,
         topic: prompt.topic,
         refinedOutput: prompt.refinedOutput,
         tokens: prompt.tokens,
@@ -240,8 +259,25 @@ class PromptController extends Notifier<PromptState> {
       );
 
       await _savePromptRun(prompt);
-    } catch (error) {
-      state = state.copyWith(loading: false, error: _mapErrorMessage(error));
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'prompt_refine_failed',
+        customKeys: {
+          'provider': providerConfig.providerName,
+          'model': providerConfig.model,
+          'structured_output_only': state.structuredOutputOnly,
+        },
+      );
+      if (!ref.mounted) {
+        return;
+      }
+      state = state.copyWith(
+        loading: false,
+        loadingMessage: null,
+        error: _mapErrorMessage(error),
+      );
     }
   }
 
@@ -256,10 +292,24 @@ class PromptController extends Notifier<PromptState> {
           timestamp: DateTime.now(),
           provider: prompt.provider,
           latencyMs: prompt.latencyMs,
+          reasoningDepth: prompt.reasoningDepth,
+          topicConfidence: prompt.topicConfidence,
         ),
       );
+      if (!ref.mounted) {
+        return;
+      }
       _refreshConnectedFeatures();
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'prompt_history_save_failed',
+        customKeys: {'provider': prompt.provider, 'topic': prompt.topic},
+      );
+      if (!ref.mounted) {
+        return;
+      }
       state = state.copyWith(error: _mapHistorySaveError(error));
     }
   }

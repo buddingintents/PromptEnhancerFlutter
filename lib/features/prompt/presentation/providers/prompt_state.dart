@@ -4,24 +4,28 @@ class PromptState {
     this.topic,
     this.refinedOutput,
     this.loading = false,
+    this.loadingMessage,
     this.error,
     this.tokens,
     this.provider,
     this.latencyMs,
     this.reasoningDepth,
     this.topicConfidence,
+    this.structuredOutputOnly = false,
   });
 
   final String input;
   final String? topic;
   final String? refinedOutput;
   final bool loading;
+  final String? loadingMessage;
   final String? error;
   final int? tokens;
   final String? provider;
   final int? latencyMs;
   final String? reasoningDepth;
   final double? topicConfidence;
+  final bool structuredOutputOnly;
 
   bool get hasTopic => topic != null && topic!.trim().isNotEmpty;
 
@@ -33,12 +37,14 @@ class PromptState {
     Object? topic = _sentinel,
     Object? refinedOutput = _sentinel,
     bool? loading,
+    Object? loadingMessage = _sentinel,
     Object? error = _sentinel,
     Object? tokens = _sentinel,
     Object? provider = _sentinel,
     Object? latencyMs = _sentinel,
     Object? reasoningDepth = _sentinel,
     Object? topicConfidence = _sentinel,
+    bool? structuredOutputOnly,
   }) {
     return PromptState(
       input: input ?? this.input,
@@ -47,6 +53,9 @@ class PromptState {
           ? this.refinedOutput
           : refinedOutput as String?,
       loading: loading ?? this.loading,
+      loadingMessage: identical(loadingMessage, _sentinel)
+          ? this.loadingMessage
+          : loadingMessage as String?,
       error: identical(error, _sentinel) ? this.error : error as String?,
       tokens: identical(tokens, _sentinel) ? this.tokens : tokens as int?,
       provider: identical(provider, _sentinel)
@@ -61,6 +70,7 @@ class PromptState {
       topicConfidence: identical(topicConfidence, _sentinel)
           ? this.topicConfidence
           : topicConfidence as double?,
+      structuredOutputOnly: structuredOutputOnly ?? this.structuredOutputOnly,
     );
   }
 }

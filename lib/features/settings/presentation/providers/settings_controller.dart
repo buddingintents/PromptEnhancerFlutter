@@ -1,5 +1,6 @@
-﻿import 'package:flutter/services.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prompt_enhancer/core/firebase/firebase_telemetry_service.dart';
 import 'package:prompt_enhancer/core/utils/app_exception.dart';
 import 'package:prompt_enhancer/features/prompt/domain/entities/llm_provider_type.dart';
 import 'package:prompt_enhancer/features/settings/domain/entities/app_language.dart';
@@ -21,8 +22,19 @@ class SettingsController extends Notifier<SettingsState> {
 
     try {
       final snapshot = await ref.read(getSettingsSnapshotUseCaseProvider)();
+      if (!ref.mounted) {
+        return;
+      }
       state = SettingsState.fromSnapshot(snapshot);
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_load_failed',
+      );
+      if (!ref.mounted) {
+        return;
+      }
       state = state.copyWith(loading: false, error: _mapError(error));
     }
   }
@@ -40,6 +52,9 @@ class SettingsController extends Notifier<SettingsState> {
       await ref.read(saveProviderApiKeyUseCaseProvider)(
         ProviderApiKey(provider: provider, value: normalizedValue),
       );
+      if (!ref.mounted) {
+        return 'API key saved for ${provider.displayName}.';
+      }
 
       state = state.copyWith(
         providerApiKeys: _upsertProviderApiKey(
@@ -48,9 +63,17 @@ class SettingsController extends Notifier<SettingsState> {
         error: null,
       );
       return 'API key saved for ${provider.displayName}.';
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_api_key_save_failed',
+        customKeys: {'provider': provider.displayName},
+      );
       final message = _mapError(error);
-      state = state.copyWith(error: message);
+      if (ref.mounted) {
+        state = state.copyWith(error: message);
+      }
       return message;
     }
   }
@@ -58,6 +81,10 @@ class SettingsController extends Notifier<SettingsState> {
   Future<String> deleteApiKey(LLMProviderType provider) async {
     try {
       await ref.read(deleteProviderApiKeyUseCaseProvider)(provider);
+      if (!ref.mounted) {
+        return 'API key deleted for ${provider.displayName}.';
+      }
+
       state = state.copyWith(
         providerApiKeys: _upsertProviderApiKey(
           ProviderApiKey(provider: provider),
@@ -65,9 +92,17 @@ class SettingsController extends Notifier<SettingsState> {
         error: null,
       );
       return 'API key deleted for ${provider.displayName}.';
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_api_key_delete_failed',
+        customKeys: {'provider': provider.displayName},
+      );
       final message = _mapError(error);
-      state = state.copyWith(error: message);
+      if (ref.mounted) {
+        state = state.copyWith(error: message);
+      }
       return message;
     }
   }
@@ -87,11 +122,21 @@ class SettingsController extends Notifier<SettingsState> {
       }
 
       await Clipboard.setData(ClipboardData(text: entry.value));
-      state = state.copyWith(error: null);
+      if (ref.mounted) {
+        state = state.copyWith(error: null);
+      }
       return 'API key copied after the mock biometric check.';
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_api_key_copy_failed',
+        customKeys: {'provider': provider.displayName},
+      );
       final message = _mapError(error);
-      state = state.copyWith(error: message);
+      if (ref.mounted) {
+        state = state.copyWith(error: message);
+      }
       return message;
     }
   }
@@ -117,9 +162,20 @@ class SettingsController extends Notifier<SettingsState> {
         normalizedModel,
       );
       return 'Model updated for ${provider.displayName}.';
-    } catch (error) {
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_model_update_failed',
+        customKeys: {
+          'provider': provider.displayName,
+          'model': normalizedModel,
+        },
+      );
       final message = _mapError(error);
-      state = previousState.copyWith(error: message);
+      if (ref.mounted) {
+        state = previousState.copyWith(error: message);
+      }
       return message;
     }
   }
@@ -130,8 +186,16 @@ class SettingsController extends Notifier<SettingsState> {
 
     try {
       await ref.read(updateThemePreferenceUseCaseProvider)(preference);
-    } catch (error) {
-      state = previousState.copyWith(error: _mapError(error));
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_theme_update_failed',
+        customKeys: {'theme': preference.storageValue},
+      );
+      if (ref.mounted) {
+        state = previousState.copyWith(error: _mapError(error));
+      }
     }
   }
 
@@ -141,8 +205,16 @@ class SettingsController extends Notifier<SettingsState> {
 
     try {
       await ref.read(updateLanguagePreferenceUseCaseProvider)(language);
-    } catch (error) {
-      state = previousState.copyWith(error: _mapError(error));
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_language_update_failed',
+        customKeys: {'language': language.code},
+      );
+      if (ref.mounted) {
+        state = previousState.copyWith(error: _mapError(error));
+      }
     }
   }
 
@@ -152,8 +224,16 @@ class SettingsController extends Notifier<SettingsState> {
 
     try {
       await ref.read(updatePreferredProviderUseCaseProvider)(provider);
-    } catch (error) {
-      state = previousState.copyWith(error: _mapError(error));
+    } catch (error, stackTrace) {
+      await FirebaseTelemetryService.reportError(
+        error,
+        stackTrace,
+        reason: 'settings_provider_update_failed',
+        customKeys: {'provider': provider.displayName},
+      );
+      if (ref.mounted) {
+        state = previousState.copyWith(error: _mapError(error));
+      }
     }
   }
 

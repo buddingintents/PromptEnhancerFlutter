@@ -10,10 +10,12 @@ class RefinePromptUseCase {
   Future<PromptEntity> call({
     required String input,
     required TopicResult topicResult,
+    bool structuredOutputOnly = false,
   }) {
     return _promptRepository.refinePrompt(
       input: input,
       topicResult: topicResult,
+      structuredOutputOnly: structuredOutputOnly,
     );
   }
 }

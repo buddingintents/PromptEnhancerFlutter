@@ -7,5 +7,6 @@ abstract class PromptRepository {
   Future<PromptEntity> refinePrompt({
     required String input,
     required TopicResult topicResult,
+    bool structuredOutputOnly = false,
   });
 }

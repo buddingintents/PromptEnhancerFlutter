@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:prompt_enhancer/core/constants/admob_constants.dart';
 import 'package:prompt_enhancer/core/constants/app_routes.dart';
 import 'package:prompt_enhancer/core/constants/llm_provider_models.dart';
 import 'package:prompt_enhancer/features/prompt/domain/entities/llm_provider_type.dart';
@@ -9,6 +10,7 @@ import 'package:prompt_enhancer/features/settings/domain/entities/provider_api_k
 import 'package:prompt_enhancer/features/settings/presentation/providers/settings_controller.dart';
 import 'package:prompt_enhancer/features/settings/presentation/providers/settings_providers.dart';
 import 'package:prompt_enhancer/features/settings/presentation/providers/settings_state.dart';
+import 'package:prompt_enhancer/shared/widgets/app_banner_ad_slot.dart';
 import 'package:prompt_enhancer/shared/widgets/app_button.dart';
 import 'package:prompt_enhancer/shared/widgets/app_card.dart';
 import 'package:prompt_enhancer/shared/widgets/app_shell_scaffold.dart';
@@ -104,6 +106,8 @@ class SettingsPage extends ConsumerWidget {
                   const SizedBox(height: 20),
                   _PreferencesCard(state: state, controller: controller),
                 ],
+                const SizedBox(height: 20),
+                const _ProviderStarterGuideCard(),
                 const SizedBox(height: 24),
                 AppCard(
                   title: 'Provider API Keys and Models',
@@ -155,6 +159,10 @@ class SettingsPage extends ConsumerWidget {
                       ],
                     ),
                 ],
+                const SizedBox(height: 24),
+                AppBannerAdSlot(
+                  adUnitId: AdMobConstants.bannerUnitIdFor(AppRoutes.settings),
+                ),
               ],
             );
           },
@@ -274,6 +282,62 @@ class _PreferencesCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ProviderStarterGuideCard extends StatelessWidget {
+  const _ProviderStarterGuideCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppCard(
+      title: 'Choosing Your First API Key',
+      subtitle:
+          'Free access and billing rules differ by provider, so this card gives users a quick starting point.',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Right now, Gemini and Hugging Face are usually the easiest free starting points. OpenAI may allow limited first-use testing, while Claude and Perplexity commonly need billing or credits. Availability can change over time.',
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: 16),
+          Wrap(
+            spacing: 10,
+            runSpacing: 10,
+            children: const [
+              _SettingsGuideChip(label: 'Gemini: free tier available'),
+              _SettingsGuideChip(
+                label: 'Hugging Face: starter access available',
+              ),
+              _SettingsGuideChip(label: 'OpenAI: usually billing required'),
+              _SettingsGuideChip(label: 'Claude: credits or billing required'),
+              _SettingsGuideChip(label: 'Perplexity: billing usually required'),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsGuideChip extends StatelessWidget {
+  const _SettingsGuideChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(label, style: theme.textTheme.labelLarge),
     );
   }
 }

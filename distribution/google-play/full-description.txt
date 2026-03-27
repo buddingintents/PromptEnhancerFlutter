@@ -1,0 +1,70 @@
+Prompt Enhancer helps you turn rough ideas into polished, reusable prompts in a focused mobile workspace built for everyday AI work.
+
+If you often rewrite prompts, lose good outputs, or want a cleaner way to compare providers, Prompt Enhancer gives you one place to create, refine, save, reuse, and measure prompts with confidence.
+
+Write a raw prompt, choose your preferred AI provider, and get a cleaner result with stronger structure, better clarity, and more reusable output. Whether you are drafting content, building workflows, researching ideas, or preparing structured AI tasks, Prompt Enhancer keeps your process organized from first draft to final refined prompt.
+
+What you can do:
+
+- Refine rough prompts into clearer, more effective prompts
+- Detect the topic of a prompt before refinement
+- Choose a default AI provider and model
+- Request structured JSON-only output when needed
+- Save successful prompt runs into History
+- Copy, rerun, or delete previous prompt runs
+- Explore world trending prompt categories from synced activity
+- Track tokens, response time, and daily prompt usage
+- Manage API keys securely on device
+
+Supported AI providers:
+- OpenAI
+- Gemini
+- Claude
+- Hugging Face
+- Perplexity
+
+Why users choose Prompt Enhancer:
+
+- One workspace for writing, refining, and reusing prompts
+- Faster iteration on ideas without losing prompt history
+- Secure API key management with per-provider setup
+- Clear model and provider selection from Settings
+- Useful history actions including copy and rerun
+- Trending insights based on real prompt categories
+- Usage metrics for prompt volume, latency, and token consumption
+- Clean Material 3 mobile experience designed for regular use
+
+Designed for practical AI workflows:
+
+Prompt Enhancer is useful for creators, developers, marketers, founders, analysts, researchers, students, and teams who want better prompt quality without extra complexity.
+
+Use it for:
+- prompt engineering
+- structured output workflows
+- content drafting
+- brainstorming and ideation
+- AI-assisted research
+- reusable prompt libraries
+- testing different providers and models
+- improving prompt consistency across work sessions
+
+History that stays useful:
+
+Every successful prompt run can be stored so you can revisit what worked, rerun older prompts, and build your own library of refined prompts over time. Instead of starting from scratch each time, you can learn from your own usage patterns and reuse the prompts that already delivered strong results.
+
+Trending and metrics that add context:
+
+Prompt Enhancer does more than refine text. It helps you understand how you are using AI. Explore trending prompt categories, review total prompt activity, monitor token usage, and compare response times so you can make smarter provider and workflow decisions.
+
+Built around bring-your-own-key flexibility:
+
+Prompt Enhancer supports a bring-your-own-key model. Add your preferred provider key in Settings, select a model, and start refining prompts in seconds. This gives you flexibility to work with the providers you already use while keeping account control in your hands.
+
+Privacy and transparency:
+
+- API keys are stored securely on device
+- prompt history can sync to Firebase for history and trending features
+- Firebase Analytics and Crashlytics help improve stability and quality
+- ads may be shown inside the app
+
+Prompt Enhancer is built for people who want a practical prompt workspace, not just a single text box. Create better prompts, keep what works, discover trends, and improve your AI workflow over time from one app.

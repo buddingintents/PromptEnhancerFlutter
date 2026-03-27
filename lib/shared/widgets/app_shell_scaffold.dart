@@ -120,7 +120,7 @@ class _NavigationDrawer extends StatelessWidget {
                         onTap: () {
                           Navigator.of(context).pop();
                           if (item.route != currentRoute) {
-                            context.go(item.route);
+                            context.push(item.route);
                           }
                         },
                       ),
@@ -173,7 +173,7 @@ class _NavigationRail extends StatelessWidget {
             onDestinationSelected: (index) {
               final destination = _navigationItems[index];
               if (destination.route != currentRoute) {
-                context.go(destination.route);
+                context.push(destination.route);
               }
             },
             destinations: [
